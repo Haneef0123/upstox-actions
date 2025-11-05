@@ -8,8 +8,8 @@
  * See N8N_WORKFLOW_ANALYSIS.md for details
  *
  * Configure your cron trigger to hit this endpoint at the desired interval:
- * - Default from N8n: */10 * * * * (every 10 minutes)
- * - Recommended: */30 * * * * (every 30 minutes)
+ * - Default from N8n: star/10 * * * * (every 10 minutes)
+ * - Recommended: star/30 * * * * (every 30 minutes)
  *
  * Authorization:
  * - Set CRON_SECRET environment variable
