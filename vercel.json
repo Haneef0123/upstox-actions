@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "*/15 * * * *"
+    }
+  ],
+  "env": {
+    "BITBUCKET_BASE_URL": "@bitbucket-base-url",
+    "BITBUCKET_USERNAME": "@bitbucket-username",
+    "BITBUCKET_APP_PASSWORD": "@bitbucket-app-password",
+    "AI_PROVIDER": "@ai-provider",
+    "AI_API_KEY": "@ai-api-key",
+    "SLACK_WEBHOOK_URL": "@slack-webhook-url"
+  }
+}
