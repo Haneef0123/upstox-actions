@@ -2,6 +2,7 @@
  * Parsing Utilities
  *
  * Functions for parsing PR URLs, extracting components, and processing data
+ * Based on N8n workflow analysis - see N8N_WORKFLOW_ANALYSIS.md for details
  */
 
 export interface PRUrlComponents {
@@ -14,16 +15,23 @@ export interface PRUrlComponents {
 
 /**
  * Extract PR URLs from a message
+ *
+ * Supports Bitbucket and GitHub PR URLs, including Slack-wrapped URLs
+ * Regex from N8n workflow: /<?(https?:\/\/[^\s>]*?(?:pull-requests|pull)\/\d+[^\s>]*)>?/gi
  */
 export function extractPRUrls(message: string): string[] {
-  // Regex to match Bitbucket PR URLs
-  const prUrlRegex = /https?:\/\/[^\/]+\/projects\/[^\/]+\/repos\/[^\/]+\/pull-requests\/\d+/g;
-  const matches = message.match(prUrlRegex);
-  return matches || [];
+  // Regex to match Bitbucket or GitHub PR URLs (with optional Slack wrapping)
+  const prUrlRegex = /<?(https?:\/\/[^\s>]*?(?:pull-requests|pull)\/\d+[^\s>]*)>?/gi;
+  const matches = [...message.matchAll(prUrlRegex)];
+
+  // Extract and clean URLs (remove Slack wrapping and trailing characters)
+  return matches.map(m => m[1].replace(/[>\s]+$/, ''));
 }
 
 /**
  * Parse a Bitbucket PR URL into its components
+ *
+ * Example: https://bitbucket.upstox.com/projects/GROWTH/repos/ui-stock-details/pull-requests/26
  */
 export function parsePRUrl(url: string): PRUrlComponents | null {
   const regex = /https?:\/\/([^\/]+)\/projects\/([^\/]+)\/repos\/([^\/]+)\/pull-requests\/(\d+)/;
