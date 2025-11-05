@@ -50,6 +50,22 @@ upstox-actions/
 └── public/                   # Static assets
 ```
 
+## Documentation
+
+### Core Documentation
+- **[N8N_WORKFLOW_ANALYSIS.md](./N8N_WORKFLOW_ANALYSIS.md)** - Comprehensive analysis of the original N8n workflows with all constants, API endpoints, regex patterns, and implementation details
+- **[GIT_BRANCHING_STRATEGY.md](./GIT_BRANCHING_STRATEGY.md)** - Git workflow, branching conventions, and PR guidelines
+
+### AI-Assisted Development
+- **[CLAUDE.md](./CLAUDE.md)** - Detailed development guide for Claude Code
+- **[AGENTS.md](./AGENTS.md)** - Agentic coding patterns and autonomous development workflows
+- **[AI_DEVELOPMENT.md](./AI_DEVELOPMENT.md)** - Quick reference guide for all AI assistants
+- **[.cursorrules](./.cursorrules)** - Cursor AI specific rules and conventions
+
+### Project Documentation
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Contribution guidelines
+- **[PR_SUMMARY.md](./PR_SUMMARY.md)** - Initial PR summary (historical reference)
+
 ## Getting Started
 
 ### Prerequisites
