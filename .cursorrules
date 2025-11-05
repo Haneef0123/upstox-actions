@@ -1,0 +1,285 @@
+# Cursor AI Rules for Upstox PR Automation Platform
+
+## Project Context
+This is a Next.js 14+ TypeScript project that automates PR reviews and description generation using AI. It replaces N8n workflows with a maintainable web application.
+
+## Core Technologies
+- Next.js 14+ (App Router)
+- TypeScript (strict mode)
+- Tailwind CSS
+- Groq SDK / OpenAI SDK
+- Bitbucket REST API
+- Slack Webhooks
+
+## Code Style and Conventions
+
+### TypeScript
+- Always use explicit types for function parameters and return values
+- Never use `any` - use `unknown` if type is truly unknown
+- Prefer interfaces over types for object shapes
+- Use union types for known value sets
+- Import types with `import type` when importing only types
+
+### File Organization
+- API routes: `/app/api/{endpoint}/route.ts`
+- Business logic: `/lib/{domain}/index.ts`
+- Utilities: `/lib/utils/{utility}.ts`
+- Types: `/types/index.ts` (shared types)
+- Config: `/config/index.ts` (centralized configuration)
+
+### Naming Conventions
+- Files: kebab-case (`pr-review.ts`)
+- Functions: camelCase (`fetchPRDetails`)
+- Types/Interfaces: PascalCase (`PRDetails`, `BitbucketConfig`)
+- Constants: UPPER_SNAKE_CASE (`MAX_RETRIES`)
+- Components: PascalCase (`PRDashboard.tsx`)
+
+### Function Patterns
+```typescript
+// ✅ Good: Explicit types, error handling, JSDoc
+/**
+ * Fetch PR details from Bitbucket
+ */
+export async function fetchPRDetails(
+  config: BitbucketConfig,
+  prId: string
+): Promise<PRDetails> {
+  try {
+    // Implementation
+  } catch (error) {
+    console.error('Failed to fetch PR details:', error);
+    throw error;
+  }
+}
+
+// ❌ Bad: No types, no error handling, no docs
+export async function fetchPR(config, id) {
+  return fetch(url).then(r => r.json());
+}
+```
+
+### API Route Pattern
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+import type { APIResponse } from '@/types';
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    // Process
+    return NextResponse.json<APIResponse>({
+      success: true,
+      data: { /* result */ }
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    return NextResponse.json<APIResponse>(
+      {
+        success: false,
+        error: {
+          message: error instanceof Error ? error.message : 'Unknown error',
+        },
+      },
+      { status: 500 }
+    );
+  }
+}
+```
+
+## Error Handling
+
+### Always Use Try-Catch
+Wrap all async operations in try-catch blocks.
+
+### Use Retry Logic for External APIs
+```typescript
+import { withRetry } from '@/lib/utils/batch';
+
+const result = await withRetry(
+  async () => apiCall(),
+  { maxRetries: 3, initialDelay: 1000 }
+);
+```
+
+### Descriptive Error Messages
+Include context in error messages:
+```typescript
+throw new Error(`Failed to fetch PR ${prId} from ${repo}: ${errorMessage}`);
+```
+
+## Configuration
+
+### Never Hardcode Secrets
+Always use environment variables via `/config/index.ts`:
+```typescript
+import { config } from '@/config';
+
+const apiKey = config.ai.apiKey; // ✅ Good
+const apiKey = 'sk-1234...'; // ❌ Bad
+```
+
+### Validate Configuration
+Check config validity before using:
+```typescript
+import { validateConfig } from '@/config';
+
+const { valid, errors } = validateConfig();
+if (!valid) {
+  throw new Error(`Invalid config: ${errors.join(', ')}`);
+}
+```
+
+## Documentation
+
+### JSDoc for Public Functions
+Add JSDoc comments to all exported functions:
+```typescript
+/**
+ * Parse a Bitbucket PR URL into components
+ * @param url - Full PR URL
+ * @returns Parsed components or null if invalid
+ */
+export function parsePRUrl(url: string): PRUrlComponents | null {
+  // Implementation
+}
+```
+
+### Inline Comments for Complex Logic
+Add comments for non-obvious code:
+```typescript
+// Split diff by file boundaries (diff --git pattern)
+const fileDiffs = diff.split(/^diff --git/gm);
+```
+
+### Update README.md
+Update README when adding new features or changing architecture.
+
+## Git Commits
+
+### Conventional Commit Format
+Use conventional commit messages:
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `chore:` - Maintenance task
+- `docs:` - Documentation update
+- `refactor:` - Code refactoring
+- `test:` - Test addition/update
+- `style:` - Code style change
+
+Examples:
+```
+feat: implement Bitbucket API integration
+fix: handle empty PR descriptions correctly
+chore: update dependencies
+docs: add API endpoint documentation
+```
+
+### Atomic Commits
+One logical change per commit. Don't mix feature implementation with refactoring.
+
+## Testing (Future)
+
+When implementing tests:
+- Place tests next to the code: `lib/bitbucket/index.test.ts`
+- Test happy paths and error cases
+- Mock external APIs
+- Use descriptive test names
+
+## Performance Considerations
+
+### Batch Processing
+Use batch utilities for processing multiple items:
+```typescript
+import { processBatch } from '@/lib/utils/batch';
+
+await processBatch(items, async (item) => {
+  // Process item
+}, { batchSize: 10, concurrency: 3 });
+```
+
+### Rate Limiting
+Be mindful of API rate limits. Add delays if necessary.
+
+### Avoid N+1 Queries
+Fetch related data in bulk when possible.
+
+## Security
+
+### Secrets
+- Never log API keys or passwords
+- Never commit secrets to git
+- Use environment variables for all secrets
+
+### Input Validation
+Validate all external inputs:
+```typescript
+if (!prId || typeof prId !== 'string') {
+  throw new Error('Invalid PR ID');
+}
+```
+
+### Authentication
+Use proper authentication for all API calls.
+
+## Common Patterns
+
+### N8n to Next.js Translation
+| N8n Node | Next.js Pattern |
+|----------|-----------------|
+| Webhook | API Route |
+| HTTP Request | fetch() in /lib |
+| Code Node | TypeScript function |
+| Split In Batches | processBatch() utility |
+| AI Generation | SDK call in /lib/ai |
+
+### When Adding New Features
+1. Create/update types in `/types/`
+2. Implement logic in `/lib/{domain}/`
+3. Wire up in `/app/api/` route
+4. Add config to `/config/` if needed
+5. Update documentation
+6. Commit with descriptive message
+
+## Helpful Commands
+
+```bash
+# Development
+npm run dev              # Start dev server
+npm run build            # Build for production
+npm run lint             # Run ESLint
+
+# Git
+git status               # Check status
+git add .                # Stage all changes
+git commit -m "feat: ..." # Commit with message
+git push                 # Push changes
+```
+
+## Project Status
+
+Current Phase: **Phase 2 - API Integrations**
+
+Next Tasks:
+1. Implement `/lib/bitbucket/index.ts`
+2. Implement `/lib/ai/index.ts`
+3. Implement `/lib/slack/index.ts`
+4. Implement API routes in `/app/api/`
+
+## Questions?
+
+Read these files for more context:
+- `CLAUDE.md` - Comprehensive development guide
+- `AGENTS.md` - Agentic coding patterns
+- `README.md` - Project overview
+- `CONTRIBUTING.md` - Contribution guidelines
+
+## Final Notes
+
+This project values:
+- ✅ Type safety over flexibility
+- ✅ Explicit over implicit
+- ✅ Documented over undocumented
+- ✅ Simple over clever
+- ✅ Tested over untested (future)
+
+Write code that your future self (or another AI) can understand and maintain.
