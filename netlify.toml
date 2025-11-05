@@ -1,0 +1,12 @@
+[build]
+  command = "yarn install && yarn build"
+  publish = ".next"
+
+[build.environment]
+  # Pin build to Node 20.x (LTS)
+  NODE_VERSION = "20"
+  # Use Yarn instead of npm to avoid npm 10.8.2 crashes
+  YARN_VERSION = "1.22.22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
