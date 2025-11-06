@@ -6,6 +6,8 @@
  * Validates that all required environment variables are set correctly.
  * Run this before deployment or during CI/CD pipeline.
  *
+ * Set SKIP_ENV_VALIDATION=true to skip validation (useful for build-only environments)
+ *
  * Usage: npx tsx scripts/validate-env.ts
  */
 
@@ -15,6 +17,12 @@ interface ValidationResult {
   valid: boolean;
   errors: string[];
   warnings: string[];
+}
+
+// Allow skipping validation in build-only environments
+if (process.env.SKIP_ENV_VALIDATION === 'true') {
+  console.log('⏭️  Skipping environment validation (SKIP_ENV_VALIDATION=true)\n');
+  process.exit(0);
 }
 
 function validateEnvironment(): ValidationResult {
