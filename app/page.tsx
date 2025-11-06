@@ -3,6 +3,7 @@ import { StatusCards } from '@/components/StatusCards';
 import { TriggerForms } from '@/components/TriggerForms';
 
 export default function Home() {
+  //test comment
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       {/* Header */}
@@ -46,7 +47,8 @@ export default function Home() {
         <div className="mb-8 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 p-8 text-white shadow-lg">
           <h2 className="mb-2 text-3xl font-bold">Welcome to PR Automation Platform</h2>
           <p className="mb-6 text-blue-100">
-            Automate code reviews and PR descriptions using AI. Powered by Groq/OpenAI and integrated with Bitbucket & Slack.
+            Automate code reviews and PR descriptions using AI. Powered by Groq/OpenAI and
+            integrated with Bitbucket & Slack.
           </p>
           <div className="flex flex-wrap gap-4">
             <div className="flex items-center space-x-2">
@@ -151,15 +153,14 @@ export default function Home() {
                 About This Platform
               </h4>
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                This platform automates PR reviews and description generation using AI. It's built with Next.js 14+,
-                integrates with Bitbucket REST API, and uses Groq/OpenAI for intelligent code analysis.
-                Originally migrated from N8n workflows to a full-stack TypeScript application.
+                This platform automates PR reviews and description generation using AI. It's built
+                with Next.js 14+, integrates with Bitbucket REST API, and uses Groq/OpenAI for
+                intelligent code analysis. Originally migrated from N8n workflows to a full-stack
+                TypeScript application.
               </p>
             </div>
             <div>
-              <h4 className="mb-3 font-semibold text-slate-900 dark:text-slate-100">
-                Features
-              </h4>
+              <h4 className="mb-3 font-semibold text-slate-900 dark:text-slate-100">Features</h4>
               <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                 <li>✅ Automated AI code reviews with severity levels</li>
                 <li>✅ Smart PR description generation</li>
