@@ -32,7 +32,23 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    const body = await request.json();
+    // Parse request body with error handling
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('❌ Failed to parse request body:', parseError);
+      return NextResponse.json<APIResponse>(
+        {
+          success: false,
+          error: {
+            message: 'Invalid JSON in request body',
+            code: 'INVALID_JSON',
+          },
+        },
+        { status: 400 }
+      );
+    }
 
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('📨 PR Review Webhook Received');

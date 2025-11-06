@@ -28,6 +28,13 @@ export function TriggerForms() {
         }),
       });
 
+      // Check content type before parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Server error (${response.status}): ${text.substring(0, 200)}`);
+      }
+
       const data = await response.json();
 
       if (data.success) {
@@ -70,6 +77,13 @@ export function TriggerForms() {
           notifySlack: true,
         }),
       });
+
+      // Check content type before parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Server error (${response.status}): ${text.substring(0, 200)}`);
+      }
 
       const data = await response.json();
 
