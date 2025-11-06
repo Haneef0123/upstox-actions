@@ -126,35 +126,43 @@ export async function POST(request: NextRequest) {
 
         console.log(`📦 Split into ${diffBatches.length} batch(es) (${config.review.filesPerBatch} files per batch)`);
 
-        // Generate reviews for each batch
+        // Generate reviews for each batch IN PARALLEL with concurrency limit
+        console.log(`🚀 Processing batches with concurrency limit: ${config.review.batchConcurrency}`);
+
         const reviews = [];
 
-        for (let i = 0; i < diffBatches.length; i++) {
-          const batch = diffBatches[i];
+        // Process batches in parallel with concurrency limit
+        for (let i = 0; i < diffBatches.length; i += config.review.batchConcurrency) {
+          const batchSlice = diffBatches.slice(i, i + config.review.batchConcurrency);
+          const startIdx = i;
 
-          console.log(`🤖 Processing batch ${i + 1}/${diffBatches.length} (${batch.length} files)...`);
+          const batchPromises = batchSlice.map(async (batch, sliceIdx) => {
+            const batchIdx = startIdx + sliceIdx;
+            console.log(`🤖 Processing batch ${batchIdx + 1}/${diffBatches.length} (${batch.length} files)...`);
 
-          // Build file changes text for this batch
-          const fileChangesText = buildReviewFileChangesText(batch, 200);
+            // Build file changes text for this batch
+            const fileChangesText = buildReviewFileChangesText(batch, 200);
 
-          // Generate AI review
-          const review = await generateCodeReview(config.ai, {
-            prTitle: prDetails.title,
-            prAuthor: prDetails.author.name,
-            project,
-            repository: repo,
-            fromBranch: prDetails.fromRef.displayId,
-            toBranch: prDetails.toRef.displayId,
-            commits: commits.map(c => c.message),
-            fileChanges: fileChangesText,
-            batchIndex: i,
-            totalBatches: diffBatches.length,
+            // Generate AI review
+            return generateCodeReview(config.ai, {
+              prTitle: prDetails.title,
+              prAuthor: prDetails.author.name,
+              project,
+              repository: repo,
+              fromBranch: prDetails.fromRef.displayId,
+              toBranch: prDetails.toRef.displayId,
+              commits: commits.map(c => c.message),
+              fileChanges: fileChangesText,
+              batchIndex: batchIdx,
+              totalBatches: diffBatches.length,
+            });
           });
 
-          reviews.push(review);
+          const batchResults = await Promise.all(batchPromises);
+          reviews.push(...batchResults);
         }
 
-        console.log(`✅ Generated ${reviews.length} review(s)`);
+        console.log(`✅ Generated ${reviews.length} review(s) in parallel`);
 
         // Aggregate all reviews
         const combinedReview = `# 🤖 Complete AI Code Review
@@ -181,7 +189,10 @@ Review completed successfully.`;
 
         console.log(`✂️ Split into ${chunks.length} chunk(s) for Slack`);
 
-        // Post each chunk to Slack with delay
+        // Post each chunk to Slack with optimized delay
+        // Reduce delay to 500ms to prevent timeout while still respecting rate limits
+        const slackDelay = Math.min(config.slack.waitBetweenPosts, 500);
+
         for (let i = 0; i < chunks.length; i++) {
           const chunk = chunks[i];
           const chunkIndex = i + 1;
@@ -199,10 +210,10 @@ Review completed successfully.`;
 
           await postSlackMessage(config.slack, slackMessage);
 
-          // Wait between posts (except after last one)
-          if (i < chunks.length - 1) {
-            console.log(`⏱️ Waiting ${config.slack.waitBetweenPosts}ms before next post...`);
-            await delay(config.slack.waitBetweenPosts);
+          // Wait between posts (except after last one) - reduced delay
+          if (i < chunks.length - 1 && slackDelay > 0) {
+            console.log(`⏱️ Waiting ${slackDelay}ms before next post...`);
+            await delay(slackDelay);
           }
         }
 

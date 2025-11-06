@@ -242,6 +242,21 @@ This is a work in progress. Contributions are welcome!
 
 [Your License Here]
 
+## Troubleshooting
+
+### Common Issues
+
+- **504 Gateway Timeout**: See [docs/TIMEOUT_TROUBLESHOOTING.md](./docs/TIMEOUT_TROUBLESHOOTING.md) for timeout optimization strategies
+- **JSON Parse Errors**: See [docs/TROUBLESHOOTING_JSON_ERRORS.md](./docs/TROUBLESHOOTING_JSON_ERRORS.md) for JSON error debugging
+- **Netlify Deployment**: See [docs/NETLIFY_DEPLOYMENT.md](./docs/NETLIFY_DEPLOYMENT.md) for deployment configuration
+
+### Performance Optimization
+
+For serverless environments (Netlify/Vercel), the platform implements:
+- **Parallel batch processing**: Processes up to 3 AI review batches simultaneously (configurable via `BATCH_CONCURRENCY`)
+- **Optimized Slack delays**: Automatically caps delays at 500ms to prevent timeouts
+- **Configurable batch sizes**: Adjust `REVIEW_FILES_PER_BATCH` to balance speed vs detail
+
 ## Support
 
 For issues and questions, please open an issue on GitHub.
