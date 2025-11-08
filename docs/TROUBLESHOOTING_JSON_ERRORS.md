@@ -61,15 +61,18 @@ This error occurs when the frontend tries to parse a non-JSON response as JSON. 
 
 **Symptom:** API processes but returns unexpected response
 
-**Valid URL format:**
+**Valid URL formats:**
 ```
 https://bitbucket.upstox.com/projects/GROWTH/repos/ui-wp-pages/pull-requests/32
+https://bitbucket.upstox.com/projects/GROWTH/repos/ui-wp-pages/pull-requests/32/overview ✅ (now supported!)
+https://bitbucket.upstox.com/projects/GROWTH/repos/ui-wp-pages/pull-requests/32/diff
+https://bitbucket.upstox.com/projects/GROWTH/repos/ui-wp-pages/pull-requests/32/commits
 ```
 
 **Invalid formats:**
-- URLs with `/overview` at the end (remove it)
 - URLs with query parameters (remove them)
 - GitHub URLs (only Bitbucket supported)
+- Malformed URLs missing project/repo components
 
 ## Fixes Applied
 

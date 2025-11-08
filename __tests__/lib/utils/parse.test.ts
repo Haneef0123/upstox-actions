@@ -83,6 +83,44 @@ describe('parsePRUrl', () => {
     expect(result?.domain).toBe('bitbucket.example.com');
   });
 
+  it('should parse URL with /overview suffix', () => {
+    const url = 'https://bitbucket.upstox.com/projects/GROWTH/repos/ui-stock-details/pull-requests/345/overview';
+    const result = parsePRUrl(url);
+
+    expect(result).not.toBeNull();
+    expect(result?.domain).toBe('bitbucket.upstox.com');
+    expect(result?.project).toBe('GROWTH');
+    expect(result?.repo).toBe('ui-stock-details');
+    expect(result?.prId).toBe('345');
+    expect(result?.fullUrl).toBe(url);
+  });
+
+  it('should parse URL with /diff suffix', () => {
+    const url = 'https://bitbucket.example.com/projects/PROJ/repos/repo/pull-requests/123/diff';
+    const result = parsePRUrl(url);
+
+    expect(result).not.toBeNull();
+    expect(result?.project).toBe('PROJ');
+    expect(result?.prId).toBe('123');
+  });
+
+  it('should parse URL with /commits suffix', () => {
+    const url = 'https://bitbucket.example.com/projects/PROJ/repos/repo/pull-requests/456/commits';
+    const result = parsePRUrl(url);
+
+    expect(result).not.toBeNull();
+    expect(result?.project).toBe('PROJ');
+    expect(result?.prId).toBe('456');
+  });
+
+  it('should parse URL with multiple path segments after PR number', () => {
+    const url = 'https://bitbucket.example.com/projects/PROJ/repos/repo/pull-requests/789/overview/some/deep/path';
+    const result = parsePRUrl(url);
+
+    expect(result).not.toBeNull();
+    expect(result?.prId).toBe('789');
+  });
+
   it('should return null for malformed URL', () => {
     const url = 'not-a-valid-url';
     const result = parsePRUrl(url);

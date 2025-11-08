@@ -31,10 +31,15 @@ export function extractPRUrls(message: string): string[] {
 /**
  * Parse a Bitbucket PR URL into its components
  *
- * Example: https://bitbucket.upstox.com/projects/GROWTH/repos/ui-stock-details/pull-requests/26
+ * Supports URLs with optional suffixes like /overview, /diff, /commits
+ * Examples:
+ *   - https://bitbucket.upstox.com/projects/GROWTH/repos/ui-stock-details/pull-requests/26
+ *   - https://bitbucket.upstox.com/projects/GROWTH/repos/ui-stock-details/pull-requests/26/overview
+ *   - https://bitbucket.upstox.com/projects/GROWTH/repos/ui-stock-details/pull-requests/26/diff
  */
 export function parsePRUrl(url: string): PRUrlComponents | null {
-  const regex = /https?:\/\/([^\/]+)\/projects\/([^\/]+)\/repos\/([^\/]+)\/pull-requests\/(\d+)/;
+  // Updated regex to optionally match any suffix after the PR number (e.g., /overview, /diff, /commits)
+  const regex = /https?:\/\/([^\/]+)\/projects\/([^\/]+)\/repos\/([^\/]+)\/pull-requests\/(\d+)(?:\/.*)?/;
   const match = url.match(regex);
 
   if (!match) {
